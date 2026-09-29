@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vokabel-Parkhaus</title>
+  <meta name="theme-color" content="#22272d" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vokabel-Parkhaus" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>🚗 Vokabel-Parkhaus</h1>
+      <p>Jede Lektion ist eine Ebene. Lerne dich Etage für Etage nach oben.</p>
+    </div>
+    <div class="row gap wrap">
+      <button id="btnInstallApp" class="secondary hidden">App installieren</button>
+      <button id="btnExport" class="secondary">Daten exportieren</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <h2>Parkebenen</h2>
+        <button id="btnNewLesson" class="icon-btn" title="Neue Ebene">＋</button>
+      </div>
+      <div id="lessonList" class="lesson-list"></div>
+    </aside>
+
+    <section class="content">
+      <section id="welcomeView" class="panel">
+        <h2>Willkommen im Vokabel-Parkhaus</h2>
+        <p>Lege links eine neue Parkebene an oder wähle eine vorhandene Lektion.</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <strong>Ebene = Lektion</strong>
+            <span>Zum Beispiel „Unit 1“, „Unit 2“ oder „Schule“.</span>
+          </div>
+          <div class="feature-card">
+            <strong>Fotoimport</strong>
+            <span>Fotografiere eine Vokabelseite, lasse Text erkennen und prüfe ihn vor dem Speichern.</span>
+          </div>
+          <div class="feature-card">
+            <strong>Lernmodus</strong>
+            <span>Deutsch → Fremdsprache oder umgekehrt, mit direktem Feedback.</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="lessonView" class="panel hidden">
+        <div class="lesson-title-row">
+          <div>
+            <div class="eyebrow">AKTUELLE EBENE</div>
+            <h2 id="lessonTitle"></h2>
+          </div>
+          <div class="row gap">
+            <button id="btnStudy" class="primary">Lernen</button>
+            <button id="btnDeleteLesson" class="danger ghost">Ebene löschen</button>
+          </div>
+        </div>
+
+        <div class="stats" id="lessonStats"></div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="vocab">Vokabeln</button>
+          <button class="tab" data-tab="photo">Fotoimport</button>
+          <button class="tab" data-tab="manual">Manuell hinzufügen</button>
+        </div>
+
+        <div id="tab-vocab" class="tabpane active">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fremdsprache</th>
+                  <th>Deutsch</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="vocabTableBody"></tbody>
+            </table>
+          </div>
+          <p id="emptyVocab" class="muted">Noch keine Vokabeln auf dieser Ebene.</p>
+        </div>
+
+        <div id="tab-photo" class="tabpane">
+          <h3>Vokabeln aus einem Foto übernehmen</h3>
+          <p class="muted">
+            Am besten funktioniert ein gerades, gut beleuchtetes Foto mit möglichst wenig Rand.
+            Nach der Texterkennung kannst du alle Einträge korrigieren.
+          </p>
+          <input id="photoInput" type="file" accept="image/*" capture="environment" />
+          <div id="previewWrap" class="preview-wrap hidden">
+            <img id="photoPreview" alt="Vorschau des Schulbuchfotos" />
+          </div>
+          <div class="row gap wrap">
+            <button id="btnRunOcr" class="primary">Text erkennen</button>
+            <span id="ocrStatus" class="muted"></span>
+          </div>
+
+          <details class="ocr-details">
+            <summary>Erkannten Rohtext anzeigen / bearbeiten</summary>
+            <textarea id="ocrText" rows="10" placeholder="Hier erscheint der erkannte Text."></textarea>
+            <button id="btnParseOcr" class="secondary">Rohtext in Vokabelpaare zerlegen</button>
+          </details>
+
+          <div id="ocrReview" class="hidden">
+            <h3>Erkannte Vokabeln prüfen</h3>
+            <p class="muted">Korrigiere fehlerhafte Einträge. Leere Zeilen werden nicht gespeichert.</p>
+            <div id="ocrRows"></div>
+            <div class="row gap wrap">
+              <button id="btnAddOcrRow" class="secondary">＋ Zeile hinzufügen</button>
+              <button id="btnSaveOcr" class="primary">Geprüfte Vokabeln speichern</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-manual" class="tabpane">
+          <h3>Vokabel manuell hinzufügen</h3>
+          <form id="manualForm" class="manual-form">
+            <label>
+              Fremdsprache
+              <input id="foreignInput" required autocomplete="off" />
+            </label>
+            <label>
+              Deutsch
+              <input id="germanInput" required autocomplete="off" />
+            </label>
+            <button class="primary" type="submit">Speichern</button>
+          </form>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="newLessonDialog">
+    <form method="dialog" id="newLessonForm" class="dialog-form">
+      <h2>Neue Parkebene</h2>
+      <label>
+        Name der Lektion
+        <input id="newLessonName" placeholder="z. B. Unit 3" required />
+      </label>
+      <div class="row gap end">
+        <button value="cancel" class="secondary">Abbrechen</button>
+        <button value="default" id="confirmNewLesson" class="primary">Anlegen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="studyDialog" class="study-dialog">
+    <div class="study-box">
+      <div class="study-head">
+        <div>
+          <div class="eyebrow">LERNMODUS</div>
+          <h2 id="studyLessonName"></h2>
+        </div>
+        <button id="btnCloseStudy" class="icon-btn">✕</button>
+      </div>
+
+      <div class="row gap wrap">
+        <label class="inline-label">
+          Richtung
+          <select id="studyDirection">
+            <option value="foreignToGerman">Fremdsprache → Deutsch</option>
+            <option value="germanToForeign">Deutsch → Fremdsprache</option>
+            <option value="random">Zufällig</option>
+          </select>
+        </label>
+        <label class="inline-label">
+          Auswahl
+          <select id="studyPool">
+            <option value="all">Alle</option>
+            <option value="weak">Nur unsichere</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="studyCard" class="study-card">
+        <div class="parking-sign">P</div>
+        <div class="muted small">Übersetze:</div>
+        <div id="studyPrompt" class="study-prompt"></div>
+        <input id="studyAnswer" placeholder="Antwort eingeben …" autocomplete="off" />
+        <div class="row gap center">
+          <button id="btnCheckAnswer" class="primary">Prüfen</button>
+          <button id="btnShowAnswer" class="secondary">Lösung zeigen</button>
+        </div>
+        <div id="studyFeedback" class="feedback"></div>
+      </div>
+
+      <div class="study-progress">
+        <span id="studyProgressText"></span>
+        <progress id="studyProgress" max="1" value="0"></progress>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="importDialog">
+    <form method="dialog" class="dialog-form">
+      <h2>Daten importieren</h2>
+      <p class="muted">Importiert eine zuvor exportierte JSON-Datei.</p>
+      <input id="importFile" type="file" accept=".json,application/json" />
+      <div class="row gap end">
+        <button value="cancel" class="secondary">Abbrechen</button>
+        <button id="btnImportConfirm" value="default" class="primary">Importieren</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer>
+    <button id="btnImport" class="link-btn">Daten importieren</button>
+    <span>Vokabel-Parkhaus · installierbar · lokale Speicherung auf dem Gerät</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
