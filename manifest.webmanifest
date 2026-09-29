@@ -1,0 +1,19 @@
+{
+  "name": "Vokabel-Parkhaus",
+  "short_name": "Parkhaus",
+  "description": "Vokabeltrainer mit Parkhaus-Ebenen, Fotoimport und lokalem Lernstand.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f7",
+  "theme_color": "#22272d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
